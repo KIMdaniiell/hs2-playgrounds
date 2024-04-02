@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ import static com.example.hs2playgrounds.util.ValidationMessages.*;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/sports")
+@RequestMapping(path = "api/sports")
 public class SportController {
 
     private final SportService sportService;
@@ -42,6 +43,7 @@ public class SportController {
     }
 
     @PostMapping(value = "/")
+    @PreAuthorize("hasAnyRole('ROLE_EDITOR')")
     public ResponseEntity<?> createSport(
             @Valid @RequestBody SportDTO sportDto
     ) {
@@ -50,6 +52,7 @@ public class SportController {
     }
 
     @PutMapping(value = "/{sportId}")
+    @PreAuthorize("hasAnyRole('ROLE_EDITOR')")
     public ResponseEntity<?> updateSport(
             @PathVariable @Min(value = 0, message = MSG_ID_NEGATIVE) long sportId,
             @Valid @RequestBody SportDTO sportDto
@@ -59,6 +62,7 @@ public class SportController {
     }
 
     @DeleteMapping(value = "/{sportId}")
+    @PreAuthorize("hasAnyRole('ROLE_EDITOR')")
     public ResponseEntity<?> deleteSport(
             @PathVariable @Min(value = 0, message = MSG_ID_NEGATIVE) long sportId
     ) {

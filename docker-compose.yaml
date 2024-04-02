@@ -1,26 +1,69 @@
 services:
-  pg_db:
+  playgrounds_database-service:
     image: postgres:16.0-alpine
-    container_name: pg_db
+    container_name: playgrounds_database-container
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d playgrounds_database" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     environment:
-      - POSTGRES_USER=${PG_USERNAME}
-      - POSTGRES_PASSWORD=${PG_PASSWORD}
-      - POSTGRES_DB=${PG_DATABASE}
+      POSTGRES_USER: ${PG_USERNAME}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DATABASE}
     ports:
       - "${PG_PORT}:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data
-  pg_liquid:
+    networks:
+      internal-network:
+
+  playgrounds_liquid-service:
     image: liquibase/liquibase
-    container_name: pg_liquid
+    container_name: playgrounds_liquid-container
+    depends_on:
+      playgrounds_database-service:
+        condition: service_started
     environment:
       LIQUIBASE_COMMAND_USERNAME: ${PG_USERNAME}
       LIQUIBASE_COMMAND_PASSWORD: ${PG_PASSWORD}
-      LIQUIBASE_COMMAND_URL: jdbc:postgresql://pg_db:5432/${PG_DATABASE}
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://playgrounds_database-container:5432/${PG_DATABASE}
+      LIQUIBASE_LOG_LEVEL: WARNING
     volumes:
       - ./src/main/resources/db/changelog/:/liquibase/changelog
       - ./src/main/resources/db/db.changelog-master.xml:/liquibase/db.changelog-master.xml
     command: --changelog-file db.changelog-master.xml update
+    networks:
+      internal-network:
+
+  playgrounds-service:
+    container_name: playgrounds-service-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      playgrounds_database-service:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "${APP_PORT}:9013"
+    networks:
+      hls-lab-network:
+        priority: 100
+      internal-network:
+        priority: 1000
+
+networks:
+  hls-lab-network: # Нужна для связи с другими сервисами проекта
+    external: true
+  internal-network: # Нужна исключительно для взаимодействия элементов внутри сервиса.
+    external: true  # Костыль для реализации приоритетов назначения адресов сетевым интерфейсам
+      # (параметр priority сейчас не работает - известный баг).
+      # Адреса назначаются в алфавитном порядке названия сети, причем
+      # internal и external сети сортируются отдельно. Поэтому пришлось
+    # внутреннюю сеть обозначить как внешнюю.
+    name: z-playgrounds-internal-network
 
 volumes:
   pg-data:

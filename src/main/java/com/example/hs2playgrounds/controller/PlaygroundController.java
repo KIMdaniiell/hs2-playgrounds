@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ import static com.example.hs2playgrounds.util.ValidationMessages.*;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/playgrounds")
+@RequestMapping(path = "api/playgrounds")
 public class PlaygroundController {
 
     private final PlaygroundService playgroundService;
@@ -42,12 +43,14 @@ public class PlaygroundController {
     }
 
     @PostMapping(value = "/")
+    @PreAuthorize("hasAnyRole('ROLE_EDITOR')")
     public ResponseEntity<?> createPlayground(@Valid @RequestBody PlaygroundDTO playground) {
         PlaygroundDTO created = playgroundService.createPlayground(playground);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{playgroundId}")
+    @PreAuthorize("hasAnyRole('ROLE_EDITOR')")
     public ResponseEntity<?> updatePlayground(
             @PathVariable @Min(value = 0, message = MSG_ID_NEGATIVE) long playgroundId,
             @Valid @RequestBody PlaygroundDTO playground
@@ -57,6 +60,7 @@ public class PlaygroundController {
     }
 
     @DeleteMapping("/{playgroundId}")
+    @PreAuthorize("hasAnyRole('ROLE_EDITOR')")
     public ResponseEntity<?> deletePlayground(
             @PathVariable @Min(value = 0, message = MSG_ID_NEGATIVE) long playgroundId
     ) {

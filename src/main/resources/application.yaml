@@ -1,11 +1,13 @@
+server:
+  port: 9013
+
 spring:
   application:
     name: playgrounds-service
   profiles:
-    active: dev
+    active: LOCAL
   config:
-    import: configserver:http://localhost:8888
-message: Hello
-server:
-  port: 8081
+    import: configserver:http://configuration-server:8888/
+#      'configuration-server' - is a container name (see more about Docker's networks DNS...)
+
 

@@ -24,6 +24,7 @@
             </column>
         </createTable>
     </changeSet>
+
     <changeSet author="liquibase (generated)" id="1709022859553-2">
         <createTable tableName="playground_availability">
             <column name="available_from" type="time(6) WITHOUT TIME ZONE"/>
@@ -39,6 +40,7 @@
             </column>
         </createTable>
     </changeSet>
+
     <changeSet author="liquibase (generated)" id="1709022859553-3">
         <createTable tableName="sport">
             <column autoIncrement="true" name="sport_id" type="BIGINT">
@@ -49,9 +51,11 @@
             </column>
         </createTable>
     </changeSet>
+
     <changeSet author="liquibase (generated)" id="1709022859553-4">
         <addUniqueConstraint columnNames="pg_availability_id" constraintName="playground_pg_availability_id_key" tableName="playground"/>
     </changeSet>
+
     <changeSet author="liquibase (generated)" id="1709022859553-5">
         <createTable tableName="playground_sports">
             <column name="playground_id" type="BIGINT">
@@ -62,6 +66,7 @@
             </column>
         </createTable>
     </changeSet>
+
     <changeSet author="liquibase (generated)" id="1709022859553-6">
         <addForeignKeyConstraint baseColumnNames="pg_availability_id" baseTableName="playground" constraintName="fkck9wef86irsad0kq7lv39h14x" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="playground_availability" validate="true"/>
     </changeSet>
