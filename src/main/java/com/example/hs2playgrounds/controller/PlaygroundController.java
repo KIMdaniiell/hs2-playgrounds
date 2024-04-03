@@ -20,12 +20,12 @@ import static com.example.hs2playgrounds.util.ValidationMessages.*;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "api/playgrounds")
+@RequestMapping(path = "/api/playgrounds")
 public class PlaygroundController {
 
     private final PlaygroundService playgroundService;
 
-    @GetMapping(value = "/")
+    @GetMapping(value = {"", "/"})
     public ResponseEntity<?> getAllPlaygrounds(
             @RequestParam(value = "page", defaultValue = "0") @Min(value = 0, message = MSG_PAGE_NEGATIVE) int page,
             @RequestParam(value = "size", defaultValue = "5") @Min(value = 0, message = MSG_SIZE_NEGATIVE) @Max(value = 50, message = MSG_SIZE_TOO_BIG) int size
@@ -42,7 +42,7 @@ public class PlaygroundController {
         return ResponseEntity.ok().body(pg);
     }
 
-    @PostMapping(value = "/")
+    @PostMapping(value = {"", "/"})
     @PreAuthorize("hasAnyRole('ROLE_EDITOR')")
     public ResponseEntity<?> createPlayground(@Valid @RequestBody PlaygroundDTO playground) {
         PlaygroundDTO created = playgroundService.createPlayground(playground);
